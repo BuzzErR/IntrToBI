@@ -1,0 +1,9 @@
+*.sqlite3
+*.log
+goods/
+bills/
+users/
+config.py
+*.db
+.idea/
+__pycache__/
