@@ -38,6 +38,11 @@ try:
         bot.send_message(message.chat.id, row)
 
 
+    @bot.message_handler(commands=['help'])
+    def get_help(message):
+        bot.send_message(message.chat.id, phrases.get_help)
+
+
     @bot.message_handler(func=lambda message: not (functions.does_user_exist(str(message.from_user.id))))
     def reg_for_user(message):
         bot.send_message(message.chat.id, phrases.unknown_user)
