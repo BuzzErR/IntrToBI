@@ -232,7 +232,7 @@ try:
             elif data[2] == 'COMPLETE_ORDER':
                 conn = sqlite3.connect('users.db')
                 cursor = conn.cursor()
-                query = 'SELECT * FROM tasks WHERE Owner_telegram_id=? AND Is_completed="FALSE"'
+                query = 'SELECT * FROM tasks WHERE Courier=? AND Is_completed="FALSE"'
                 task_data = cursor.execute(query, [data[0]]).fetchone()
                 query = 'SELECT balance FROM users WHERE Telegram_id=?'
                 user_balance = cursor.execute(query, [task_data[1]]).fetchone()[0]
