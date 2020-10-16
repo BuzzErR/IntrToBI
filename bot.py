@@ -66,7 +66,11 @@ try:
                 functions.set_value(message.from_user.id, 'STATUS', 'Waiting_for_passport')
                 bot.send_message(message.chat.id, phrases.age_completed)
             else:
-                functions.set_value(message.from_user.id, 'STATUS', '')
+                conn = sqlite3.connect('users.db')
+                cursor = conn.cursor()
+                cursor.execute('DELETE FROM users WHERE Telegram_id=?', [message.from_user.id])
+                conn.commit()
+                conn.close()
                 bot.send_message(message.chat.id, 'Прости, но сервис недоступен для людей младше 14 лет.')
 
         except Exception as e:
