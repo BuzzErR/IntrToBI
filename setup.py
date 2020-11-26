@@ -10,7 +10,7 @@ except OSError:
 try:
     os.mkdir("/goods")
 except OSError:
-    print('goods folder already exists')
+    print('users folder already exists')
 
 try:
     os.mkdir("/goods")
