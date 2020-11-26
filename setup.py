@@ -3,17 +3,17 @@ import create_tasks_table
 import create_users_table
 
 try:
-    os.mkdir("/bills")
+    os.mkdir("bills")
 except OSError:
     print('bills folder already exists')
 
 try:
-    os.mkdir("/users")
+    os.mkdir("users")
 except OSError:
     print('users folder already exists')
 
 try:
-    os.mkdir("/goods")
+    os.mkdir("goods")
 except OSError:
     print('goods folder already exists')
 
