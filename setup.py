@@ -8,7 +8,7 @@ except OSError:
     print('bills folder already exists')
 
 try:
-    os.mkdir("/goods")
+    os.mkdir("/users")
 except OSError:
     print('users folder already exists')
 
