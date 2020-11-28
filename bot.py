@@ -8,7 +8,7 @@ import phrases
 from telebot import types
 import time
 
-logging.basicConfig(filename=config.log_file_name, level=logging.DEBUG)
+logging.basicConfig(filename=config.log_file_name, level=logging.ERROR)
 bot = telebot.TeleBot(config.token, threaded=False)
 logging.getLogger("requests").setLevel(logging.WARNING)
 
@@ -120,7 +120,7 @@ try:
                 button_phone = types.KeyboardButton(text="Send phone number", request_contact=True)
                 keyboard.add(button_phone)
                 bot.send_message(message.chat.id,
-                                 'Прости, но мне требуется твой настоящий номер телефона, привязаныый к данному'
+                                 'Прости, но мне требуется твой настоящий номер телефона, привязанный к данному'
                                  ' аккаунту',
                                  reply_markup=keyboard)
         else:
@@ -283,11 +283,26 @@ try:
             conn.close()
             if price is not None:
                 bot.send_message(message.chat.id, 'Отправь геолокацию, чтобы завершить заказ, не забудьте связаться с '
-                                                  'заказчиком, чтобы уточнить где оставить продукты. Как только заказчик '
-                                                  'подтвердит получение - деньги будут переведены на Ваш счёт.')
+                                                  'заказчиком, чтобы уточнить где оставить продукты. Как только ' 
+                                                  'заказчик подтвердит получение - деньги будут переведены на Ваш '
+                                                  'счёт.')
                 bot.register_next_step_handler(message, get_final_location)
             else:
                 bot.send_message(message.chat.id, 'Не совсем тебя понял.')
+        elif message.text in config.promo_codes:
+            if config.promo_codes[message.text][0] == 'money':
+                conn = sqlite3.connect('users.db')
+                cursor = conn.cursor()
+                current_balance = cursor.execute('SELECT Balance FROM Users Where Telegram_id=?', [message.from_user.id])
+                current_balance = float(current_balance.fetchone()[0])
+                current_balance += config.promo_codes[message.text][1]
+                data = [current_balance, message.from_user.id]
+                cursor.execute('UPDATE Users SET Balance=? WHERE Telegram_id=?', data)
+                conn.commit()
+                conn.close()
+                bot.send_message(message.chat.id, 'Супер, зачислил деньги на твой баланс, используй /balance, что '
+                                                  'посмотреть состояние счёта')
+
         else:
             bot.send_message(message.chat.id, phrases.unexpected_message)
 
@@ -555,8 +570,8 @@ try:
                 cursor.execute('DELETE FROM tasks WHERE id=?', [task_id])
                 conn.commit()
                 conn.close()
-                bot.send_message(message.chat.id, 'Кажется, у тебя не хватает денег. Узнать свой баланс можно по команде '
-                                                  '/balance')
+                bot.send_message(message.chat.id, 'Кажется, у тебя не хватает денег. Узнать свой баланс можно по '
+                                                  'команде /balance')
             else:
                 functions.send_task_to_couriers(bot, task_id)
         except Exception as e:
@@ -573,5 +588,4 @@ try:
 
 except Exception as e:
     logging.error(e)
-    print(e)
     time.sleep(3)
