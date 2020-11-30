@@ -291,18 +291,22 @@ try:
                 bot.send_message(message.chat.id, 'Не совсем тебя понял.')
         elif message.text in config.promo_codes:
             if config.promo_codes[message.text][0] == 'money':
-                conn = sqlite3.connect('users.db')
-                cursor = conn.cursor()
-                current_balance = cursor.execute('SELECT Balance FROM Users Where Telegram_id=?', [message.from_user.id])
-                current_balance = float(current_balance.fetchone()[0])
-                current_balance += config.promo_codes[message.text][1]
-                data = [current_balance, message.from_user.id]
-                cursor.execute('UPDATE Users SET Balance=? WHERE Telegram_id=?', data)
-                conn.commit()
-                conn.close()
-                bot.send_message(message.chat.id, 'Супер, зачислил деньги на твой баланс, используй /balance, что '
-                                                  'посмотреть состояние счёта')
-
+                if functions.promo_used(message):
+                    conn = sqlite3.connect('users.db')
+                    cursor = conn.cursor()
+                    current_balance = cursor.execute('SELECT Balance FROM Users Where Telegram_id=?', [message.from_user.id])
+                    current_balance = float(current_balance.fetchone()[0])
+                    current_balance += config.promo_codes[message.text][1]
+                    data = [current_balance, message.from_user.id]
+                    cursor.execute('UPDATE Users SET Balance=? WHERE Telegram_id=?', data)
+                    cursor.execute('INSERT INTO USED_PROMO(User_telegram_id, Code) VALUES (?, ?)',
+                                   [message.from_user.id, message.text])
+                    conn.commit()
+                    conn.close()
+                    bot.send_message(message.chat.id, 'Супер, зачислил деньги на твой баланс, используй /balance, что '
+                                                      'посмотреть состояние счёта')
+                else:
+                    bot.send_message(message.chat.id, 'Ты уже использовал этот промокод.')
         else:
             bot.send_message(message.chat.id, phrases.unexpected_message)
 

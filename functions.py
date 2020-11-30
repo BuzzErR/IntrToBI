@@ -219,3 +219,13 @@ def send_task_to_couriers(bot, task_id):
             markup.add(btn1)
             bot.send_message(courier[12], message, reply_markup=markup)
     conn.close()
+
+
+def promo_used(message):
+    conn = sqlite3.connect('users.db')
+    cursor = conn.cursor()
+    query = 'SELECT id FROM USED_PROMO WHERE User_telegram_id=? AND Code=?'
+    data = cursor.execute(query, [message.from_user.id, message.text]).fetchone()
+    if data is not None:
+        return False
+    return True

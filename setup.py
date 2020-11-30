@@ -1,6 +1,5 @@
 import os
-import create_tasks_table
-import create_users_table
+import generate_db
 
 try:
     os.mkdir("bills")
@@ -18,11 +17,16 @@ except OSError:
     print('goods folder already exists')
 
 try:
-    create_tasks_table.create_tasks_table()
+    generate_db.create_tasks_table()
 except Exception as e:
     print(e)
 
 try:
-    create_users_table.create_users_table()
+    generate_db.create_users_table()
+except Exception as e:
+    print(e)
+
+try:
+    generate_db.create_used_promo()
 except Exception as e:
     print(e)
