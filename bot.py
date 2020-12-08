@@ -23,7 +23,7 @@ def start(message):
         functions.set_value(message.from_user.id, 'STATUS', 'Waiting_for_name')
         bot.send_message(message.chat.id, phrases.start)
     else:
-        bot.send_message(message.chat.id, 'И тебе привет,' + message.from_user.first_name)
+        bot.send_message(message.chat.id, 'И тебе привет, ' + message.from_user.first_name)
 
 
 @bot.message_handler(commands=['balance'])
