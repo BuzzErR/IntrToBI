@@ -563,8 +563,8 @@ def set_price_for_goods(message):
         value = [price, task_id]
         cursor.execute(query, value)
         conn.commit()
-        bot.register_next_step_handler(message, set_price_for_delivery)
         bot.send_message(message.chat.id, 'Сколько ты готов заплатить за доставку?')
+        bot.register_next_step_handler(message, set_price_for_delivery)
     except Exception as e:
         if message.text == 'Отменить':
             bot.send_message(message.chat.id, 'Ладно, как знаешь')
