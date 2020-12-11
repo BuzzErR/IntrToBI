@@ -200,7 +200,7 @@ def calculate_distance(x1, y1, x2, y2):
 def send_task_to_couriers(bot, task_id):
     conn = sqlite3.connect('users.db')
     cursor = conn.cursor()
-    query = 'SELECT * FROM users WHERE Courier=1'
+    query = 'SELECT * FROM users WHERE Courier=1 AND Home_lat>0 AND Radius_of_tasks>0'
     couriers = cursor.execute(query).fetchall()
     query = 'SELECT * FROM tasks WHERE id=?'
     task_data = cursor.execute(query, [task_id]).fetchone()
