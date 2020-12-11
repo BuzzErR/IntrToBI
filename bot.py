@@ -575,43 +575,43 @@ def set_price_for_goods(message):
 
 def set_price_for_delivery(message):
     price = message.text
-    try:
-        task_id = int(functions.get_value_from_users(message, 'Status'))
-        price = int(price)
+    # try:
+    task_id = int(functions.get_value_from_users(message, 'Status'))
+    price = int(price)
+    conn = sqlite3.connect('users.db')
+    cursor = conn.cursor()
+    query = 'UPDATE tasks SET Price_for_delivery=? WHERE id=?'
+    value = [price, task_id]
+    cursor.execute(query, value)
+    conn.commit()
+    conn.close()
+    order_text = 'Ваш заказ размещён, деньги зарезервированы, как только курьер примет заказ, ' \
+                 'мы Вам сообщим.\n'
+    desc = functions.get_value_from_tasks(task_id, 'Description')
+    goods_price = functions.get_number_from_tasks(task_id, 'Price_for_goods')
+    order_text += 'Номер заказа: ' + str(task_id) + '\n'
+    order_text += 'Описание: ' + desc + '\n'
+    order_text += 'Цена товаров: ' + goods_price + '\n'
+    order_text += 'Цена доставки: ' + str(price) + '.0' + '\n'
+    order_text += 'Узнать баланс: /balance'
+    bot.send_message(message.chat.id, order_text)
+    if not functions.success_of_money_reservation(task_id):
         conn = sqlite3.connect('users.db')
         cursor = conn.cursor()
-        query = 'UPDATE tasks SET Price_for_delivery=? WHERE id=?'
-        value = [price, task_id]
-        cursor.execute(query, value)
+        cursor.execute('DELETE FROM tasks WHERE id=?', [task_id])
         conn.commit()
         conn.close()
-        order_text = 'Ваш заказ размещён, деньги зарезервированы, как только курьер примет заказ, ' \
-                     'мы Вам сообщим.\n'
-        desc = functions.get_value_from_tasks(task_id, 'Description')
-        goods_price = functions.get_number_from_tasks(task_id, 'Price_for_goods')
-        order_text += 'Номер заказа: ' + str(task_id) + '\n'
-        order_text += 'Описание: ' + desc + '\n'
-        order_text += 'Цена товаров: ' + goods_price + '\n'
-        order_text += 'Цена доставки: ' + str(price) + '.0' + '\n'
-        order_text += 'Узнать баланс: /balance'
-        bot.send_message(message.chat.id, order_text)
-        if not functions.success_of_money_reservation(task_id):
-            conn = sqlite3.connect('users.db')
-            cursor = conn.cursor()
-            cursor.execute('DELETE FROM tasks WHERE id=?', [task_id])
-            conn.commit()
-            conn.close()
-            bot.send_message(message.chat.id, 'Кажется, у тебя не хватает денег. Узнать свой баланс можно по '
-                                              'команде /balance')
-        else:
-            functions.send_task_to_couriers(bot, task_id)
-    except Exception as e:
-        print(e)
-        if message.text == 'Отменить':
-            bot.send_message(message.chat.id, 'Ладно, как знаешь')
-        else:
-            bot.send_message(message.chat.id, phrases.not_number)
-            bot.register_next_step_handler(message, set_price_for_delivery)
+        bot.send_message(message.chat.id, 'Кажется, у тебя не хватает денег. Узнать свой баланс можно по '
+                                          'команде /balance')
+    else:
+        functions.send_task_to_couriers(bot, task_id)
+    # except Exception as e:
+    #     print(e)
+    #     if message.text == 'Отменить':
+    #         bot.send_message(message.chat.id, 'Ладно, как знаешь')
+    #     else:
+    #         bot.send_message(message.chat.id, phrases.not_number)
+    #         bot.register_next_step_handler(message, set_price_for_delivery)
 
 
 def get_feedback(message):
