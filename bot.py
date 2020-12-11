@@ -575,6 +575,7 @@ def set_price_for_goods(message):
 
 def set_price_for_delivery(message):
     price = message.text
+    print(price)
     # try:
     task_id = int(functions.get_value_from_users(message, 'Status'))
     price = int(price)
