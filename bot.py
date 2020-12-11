@@ -6,7 +6,7 @@ import datetime
 import sqlite3
 import phrases
 from telebot import types
-import time
+
 
 logging.basicConfig(filename=config.log_file_name, level=logging.ERROR)
 bot = telebot.TeleBot(config.token, threaded=False)
@@ -24,6 +24,15 @@ def start(message):
         bot.send_message(message.chat.id, phrases.start)
     else:
         bot.send_message(message.chat.id, 'И тебе привет, ' + message.from_user.first_name)
+
+
+@bot.message_handler(commands=['send_news'])
+def send_news(message):
+    if message.from_user.id == config.admin_chat:
+        bot.send_message(message.chat.id, 'Пришли новость')
+        bot.register_next_step_handler(message, send_news_to_everyone)
+    else:
+        bot.send_message(message.chat.id, phrases.unexpected_message)
 
 
 @bot.message_handler(commands=['balance'])
@@ -113,6 +122,7 @@ def apply_pass(message):
                 new_file.write(downloaded_file)
             functions.send_photo_to_admin(file_name, message, bot)
             bot.send_message(message.chat.id, phrases.pass_photo_received)
+
         else:
             estimated_time = 24 - functions.get_dif_of_time(
                 functions.get_value_from_users(message, 'PASS_FILE').split('_')[1], datetime.datetime.now())
@@ -607,6 +617,17 @@ def set_price_for_delivery(message):
 def get_feedback(message):
     bot.send_message(config.admin_chat, message.text)
     bot.send_message(message.chat.id, 'Спасибо за отзыв!')
+
+
+def send_news_to_everyone(message):
+    conn = sqlite3.connect('users.db')
+    cursor = conn.cursor()
+    chats = cursor.execute('SELECT Chat_id FROM users').fetchall()
+    num_of_chats = 0
+    for chat in chats:
+        num_of_chats += 1
+        bot.send_message(int(chat[0]), message.text)
+    bot.send_message(config.admin_chat, 'Кол-во юзеров: ' + str(num_of_chats))
 
 
 if __name__ == '__main__':
